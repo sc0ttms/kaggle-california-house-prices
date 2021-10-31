@@ -31,7 +31,7 @@ if __name__ == '__main__':
     config = Config()
     config.device = device
 
-    dataset_dir = 'C:/lbt/ML/datasets/kaggle_california_house_prices.zip'
+    dataset_dir = '/home/aistudio/data/data114434/kaggle_california_house_prices.zip'
     _, _, test_set, test_id = pre_dataset(dataset_dir)
 
     test_dataset = CHP_Dataset(test_set, mode='test')
@@ -43,7 +43,7 @@ if __name__ == '__main__':
 
     model = MLP(test_set.shape[1], config)
     model_dir = os.path.join(os.getcwd(), 'models',
-                             'model_0_5.42454.pdparams')
+                             'model_2_0.27014.pdparams')
     ckpt = paddle.load(model_dir)
     model.set_state_dict(ckpt)
 

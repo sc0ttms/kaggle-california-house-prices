@@ -33,9 +33,9 @@ def train(model, train_iter, valid_iter, config):
     timer_train = Timer()
 
     while epoch < n_epochs:
-        print(f"epoch {epoch + 1}, "
-              f"len train_iter {len(train_iter)}, "
-              f"len valid_iter {len(valid_iter)}")
+        # print(f"epoch {epoch + 1}, "
+        #       f"len train_iter {len(train_iter)}, "
+        #       f"len valid_iter {len(valid_iter)}")
 
         train_loss, valid_loss = 0.0, 0.0
 
@@ -44,25 +44,17 @@ def train(model, train_iter, valid_iter, config):
         model.train()
         for i, (X, Y) in enumerate(train_iter()):
             timer_train_iter.start()
-            if 'gpu' in device:
-                with paddle.amp.auto_cast():
-                    loss = model.loss(model(X), Y)
 
-                scaled = model.scaler.scale(loss)
-                scaled.backward()
-                model.scaler.minimize(optimizer, scaled)
-                optimizer.clear_grad()
-                train_loss += model.log_rmse(X, Y)/len(train_iter)
-            else:
-                loss = model.loss(model(X), Y)
-                loss.backward()
-                optimizer.step()
-                optimizer.clear_grad()
-                train_loss += model.log_rmse(X, Y)/len(train_iter)
+            loss = model.loss(model(X), Y)
+            loss.backward()
+            optimizer.step()
+            optimizer.clear_grad()
+            train_loss += model.log_rmse(X, Y)/len(train_iter)
+            
             timer_train_iter.stop()
 
-        print(f'{timer_train_iter.avg():.5f} sec')
-        print(f'{timer_train.stop()/len(train_iter):.5f} sec')
+        # print(f'{timer_train_iter.avg():.5f} sec')
+        # print(f'{timer_train.stop()/len(train_iter):.5f} sec')
 
         model.eval()
         for i, (X, Y) in enumerate(valid_iter()):
@@ -70,8 +62,8 @@ def train(model, train_iter, valid_iter, config):
                 loss = model.loss(model(X), Y)
                 valid_loss += model.log_rmse(X, Y)/len(valid_iter)
 
-        print(f"train loss {train_loss}, "
-              f"valid loss {valid_loss}")
+        # print(f"train loss {train_loss:.5f}, "
+        #       f"valid loss {valid_loss:.5f}")
 
         loss_record['train'].append(train_loss)
         loss_record['valid'].append(valid_loss)
@@ -80,8 +72,8 @@ def train(model, train_iter, valid_iter, config):
             min_loss = valid_loss
             print(f"save model, "
                   f"epoch {epoch + 1}, "
-                  f"train loss {loss_record['train'][-1]:f}, "
-                  f"valid loss {loss_record['valid'][-1]:f},")
+                  f"train loss {loss_record['train'][-1]:.5f}, "
+                  f"valid loss {loss_record['valid'][-1]:.5f},")
             # del old model
             for root, dirs, files in os.walk(model_dir):
                 for file in files:
@@ -98,8 +90,8 @@ def train(model, train_iter, valid_iter, config):
             break
 
         epoch += 1
-        # if epoch % 10 == 0:
-        #     optimizer._learning_rate /= 2.0
+        # if (epoch % 20 == 0) & (epoch <= 140):
+        #     optimizer._learning_rate /= 3.0
 
 
 if __name__ == '__main__':
@@ -110,7 +102,7 @@ if __name__ == '__main__':
     config = Config()
     config.device = device
 
-    dataset_dir = 'C:/lbt/ML/datasets/kaggle_california_house_prices.zip'
+    dataset_dir = '/home/aistudio/data/data114434/kaggle_california_house_prices.zip'
     train_set, train_labels, _, _ = pre_dataset(dataset_dir)
 
     for k in range(config.n_k_fold):

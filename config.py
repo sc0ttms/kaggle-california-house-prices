@@ -7,12 +7,12 @@ class Config():
         self.batch_size = 512
         self.optimizer = 'Adam'
         self.optim_hparams = {
-            'learning_rate': 1e-2,
-            'weight_decay': 1e-5
+            'learning_rate': 0.05,
+            'weight_decay': None
         }
 
-        self.num_workers = 0
-        self.drop_last = True
+        self.num_workers = 2
+        self.drop_last = False
 
         self.dropout = 0.1
 
